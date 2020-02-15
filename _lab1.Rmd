@@ -26,6 +26,8 @@ output: html_document
 
 -Price: цена планшета
 
+-Description: описание планшета
+
 Загрузка библиотек и текста html-страницы.
 
 ```{r}
