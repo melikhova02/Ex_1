@@ -1,0 +1,231 @@
+---
+title: "lab_1"
+author: "Мелихова И.С."
+date: "14 02 2020"
+output: html_document
+---
+## Аналитический пакет R
+
+### Упражнение 1
+
+### Парсинг HTML
+
+Задача:
+
+ С помощью пакета rvest или парсинга XML с помощью xpath запросов соберите данные с сайта согласно своему варианту. В итоговой таблице должно быть не менее 50 записей и не менее 8 признаков, из которых как минимум два количественных. Снабдите файл справочником в формате Markdown.
+
+Данные:
+
+Яндекс.Маркет, планшеты (Москва)
+
+Признаки:
+
+-Model: название планшета
+
+-Firm: фирма планшета
+
+-Price: цена планшета
+
+-Rank: рейтинг планшета в списке самых покупаемых планшетов в Москве 
+
+-Weight: вес планшета
+
+-Size: размер планшета
+
+-Internet: интернет на планшете
+
+-Screen: размер экрана, дюймы
+
+
+
+Загрузка библиотек и текста html-страницы.
+
+```{r}
+library('RCurl') 
+fileURL <- "https://market.yandex.ru/catalog--planshety/54545/list?hid=6427100&suggest_text=%D0%9F%D0%BB%D0%B0%D0%BD%D1%88%D0%B5%D1%82%D1%8B&rs=eJwzYgpgBAABcwCG&suggest_history=1&local-offers-first=0&onstock=1&how=quality"
+html <- getURL(fileURL)
+# разбираем как html
+library('XML')  
+doc <- htmlParse(html)
+rootNode <- xmlRoot(doc)
+```
+
+Выбирем наименования моделей и просмотрим первые три из них.
+
+```{r}
+m <- xpathSApply(rootNode, '//h3[@class="n-snippet-card2__title"]/a',xmlValue)
+m[1:3]
+```
+
+Выбирем фирмы моделей и просмотрим первые три из них.
+
+```{r}
+f <- m
+f <- gsub('(.*)[В‚](.*)$','\\2',f)
+f
+```
+
+Выбирем цены моделей и просмотрим первые три из них.
+
+```{r}
+p <- xpathSApply(rootNode, '//div[@class="price"]', xmlValue)
+p <- as.numeric(gsub('[^0-9\\.]', '', p))
+# просмотр первых трёх элементов вектора
+p[1:3]
+```
+
+Выбирем рейтинги моделей и просмотрим первые три из них.
+
+```{r}
+r <- xpathSApply(rootNode, '//div[@class="rating__value"]', xmlValue)
+r[1:3]
+```
+
+Выбирем веса моделей и просмотрим первые три из них.
+
+```{r}
+d <- xpathSApply(rootNode, '//ul[@class="n-snippet-card2__desc n-snippet-card2__desc_type_list"]', xmlValue)
+d[1:3]
+
+w <- d
+w <- gsub('(.*)[,](.*)$','\\2',w)
+w[1:3]
+
+k <- d
+k <- gsub('(.*)[,](.*)$','\\1',k)
+```
+
+Выбирем размеры моделей и просмотрим первые три из них.
+
+```{r}
+s <- k
+s <- gsub('(.*)[,](.*)$','\\2',s)
+s[1:3]
+
+k <- gsub('(.*)[,](.*)$','\\1',k)
+```
+
+Выбирем возможности использования интернета моделей и просмотрим первые три из них.
+
+```{r}
+i <- k
+i <- gsub('(.*)[,](.*)$','\\2',i)
+i[1:3]
+
+k <- gsub('(.*)[,](.*)$','\\1',k)
+```
+
+Выбирем размеры экрана моделей и просмотрим первые три из них.
+
+```{r}
+o <- k
+o <- gsub('(.*)["].*$','\\1',k)
+o[1:3]
+```
+
+Объединяем во фрейм.
+
+```{r}
+DF1 <- data.frame( Model = m, Firm = f, Price = p, Rank = r,  Weight = w, Size = s, Internet = i, Screen = o, stringsAsFactors = FALSE)
+```
+
+
+
+Загрузка библиотек и текста html-страницы.
+
+```{r}
+library('RCurl') 
+fileURL <- "https://market.yandex.ru/catalog--planshety/54545/list?hid=6427100&suggest_text=%D0%9F%D0%BB%D0%B0%D0%BD%D1%88%D0%B5%D1%82%D1%8B&rs=eJwzYgpgBAABcwCG&suggest_history=1&local-offers-first=0&onstock=1&how=quality&page=2"
+html <- getURL(fileURL)
+# разбираем как html
+library('XML')  
+doc <- htmlParse(html)
+rootNode <- xmlRoot(doc)
+```
+
+
+Выбирем наименования моделей и просмотрим первые три из них.
+
+```{r}
+m1 <- xpathSApply(rootNode, '//h3[@class="n-snippet-card2__title"]/a',xmlValue)
+m1[1:3]
+```
+
+Выбирем фирмы моделей и просмотрим первые три из них.
+
+```{r}
+f1 <- m1
+f1 <- gsub('(.*)[В‚](.*)$','\\2',f1)
+f1
+```
+
+Выбирем цены моделей и просмотрим первые три из них.
+
+```{r}
+p1 <- xpathSApply(rootNode, '//div[@class="price"]', xmlValue)
+p1 <- as.numeric(gsub('[^0-9\\.]', '', p1))
+# просмотр первых трёх элементов вектора
+p1[1:3]
+```
+
+Выбирем рейтинги моделей и просмотрим первые три из них.
+
+```{r}
+r1 <- xpathSApply(rootNode, '//div[@class="rating__value"]', xmlValue)
+r1[1:3]
+```
+
+Выбирем веса моделей и просмотрим первые три из них.
+
+```{r}
+d1 <- xpathSApply(rootNode, '//ul[@class="n-snippet-card2__desc n-snippet-card2__desc_type_list"]', xmlValue)
+d1[1:3]
+
+w1 <- d1
+w1 <- gsub('(.*)[,](.*)$','\\2',w1)
+w1[1:3]
+
+k1 <- d1
+k1 <- gsub('(.*)[,](.*)$','\\1',k1)
+```
+
+Выбирем размеры моделей и просмотрим первые три из них.
+
+```{r}
+s1 <- k1
+s1 <- gsub('(.*)[,](.*)$','\\2',s1)
+s1[1:3]
+
+k1 <- gsub('(.*)[,](.*)$','\\1',k1)
+```
+
+Выбирем возможности использования интернета моделей и просмотрим первые три из них.
+
+```{r}
+i1 <- k1
+i1 <- gsub('(.*)[,](.*)$','\\2',i1)
+i1[1:3]
+
+k1 <- gsub('(.*)[,](.*)$','\\1',k1)
+```
+
+Выбирем размеры экрана моделей и просмотрим первые три из них.
+
+```{r}
+o1 <- k1
+o1 <- gsub('(.*)["].*$','\\1',k1)
+o1[1:3]
+```
+
+
+Объединяем во фрейм.Создаём csv-файл.
+
+```{r}
+
+DF2 <- data.frame( Model = m1, Firm = f1, Price = p1, Rank = r1, Weight = w1, Size = s1, Internet = i1, Screen = o1, stringsAsFactors = FALSE)
+
+
+DF.price <- rbind(DF1, DF2)
+write.csv(DF.price, file = './DF_price.csv', row.names = F)
+
+```
